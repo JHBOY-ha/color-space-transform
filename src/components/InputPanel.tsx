@@ -77,135 +77,153 @@ export default function InputPanel({
   const displayedHexValue = isHexFocused ? (hexInput ?? normalizedHexValue) : normalizedHexValue;
 
   return (
-    <div className="bg-slate-800 rounded-xl p-5 flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-slate-200">输入 (RGB)</h2>
-
-      {/* Color Space */}
-      <div>
-        <label htmlFor="src-space" className="text-sm text-slate-400 mb-1 block">色彩空间</label>
-        <select
-          id="src-space"
-          title="源色彩空间"
-          value={srcSpace}
-          onChange={(e) => onSrcSpaceChange(e.target.value)}
-          className="w-full bg-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm border border-slate-600 focus:outline-none focus:border-blue-500"
-        >
-          {Object.entries(COLOR_SPACES).map(([key, cs]) => (
-            <option key={key} value={key}>
-              {cs.name}
-            </option>
-          ))}
-        </select>
+    <div className="app-panel flex flex-col gap-4 rounded-[24px] p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="app-kicker text-[11px] font-semibold">Input</p>
+          <h2 className="mt-1 text-lg font-semibold text-white">输入 RGB</h2>
+        </div>
+        <div className="rounded-full border border-slate-700/70 bg-slate-950/35 px-3 py-1 text-xs font-medium text-slate-300">
+          {inputMode === "255" ? "0-255" : "0.0-1.0"}
+        </div>
       </div>
 
-      {/* White Point */}
-      <div>
-        <label htmlFor="white-point" className="text-sm text-slate-400 mb-1 block">参考白点</label>
-        <select
-          id="white-point"
-          title="参考白点"
-          value={whitePoint}
-          onChange={(e) => onWhitePointChange(e.target.value)}
-          className="w-full bg-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm border border-slate-600 focus:outline-none focus:border-blue-500"
-        >
-          {Object.entries(WHITE_POINTS).map(([key, wp]) => (
-            <option key={key} value={key}>
-              {wp.name}
-            </option>
-          ))}
-        </select>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+        <div className="metric-card p-4">
+          <label htmlFor="src-space" className="mb-2 block text-sm text-slate-400">色彩空间</label>
+          <select
+            id="src-space"
+            title="源色彩空间"
+            value={srcSpace}
+            onChange={(e) => onSrcSpaceChange(e.target.value)}
+            className="app-select px-3 py-2 text-sm"
+          >
+            {Object.entries(COLOR_SPACES).map(([key, cs]) => (
+              <option key={key} value={key}>
+                {cs.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="metric-card p-4">
+          <label htmlFor="white-point" className="mb-2 block text-sm text-slate-400">参考白点</label>
+          <select
+            id="white-point"
+            title="参考白点"
+            value={whitePoint}
+            onChange={(e) => onWhitePointChange(e.target.value)}
+            className="app-select px-3 py-2 text-sm"
+          >
+            {Object.entries(WHITE_POINTS).map(([key, wp]) => (
+              <option key={key} value={key}>
+                {wp.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Input Mode Toggle */}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => onInputModeChange("255")}
-          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${
-            inputMode === "255"
-              ? "bg-blue-600 text-white"
-              : "bg-slate-700 text-slate-400 hover:bg-slate-600"
-          }`}
-        >
-          0 - 255
-        </button>
-        <button
-          type="button"
-          onClick={() => onInputModeChange("float")}
-          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${
-            inputMode === "float"
-              ? "bg-blue-600 text-white"
-              : "bg-slate-700 text-slate-400 hover:bg-slate-600"
-          }`}
-        >
-          0.0 - 1.0
-        </button>
+      <div className="metric-card p-2">
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => onInputModeChange("255")}
+            data-active={inputMode === "255"}
+            className="app-toggle rounded-2xl px-4 py-2 text-sm font-medium"
+          >
+            0 - 255
+          </button>
+          <button
+            type="button"
+            onClick={() => onInputModeChange("float")}
+            data-active={inputMode === "float"}
+            className="app-toggle rounded-2xl px-4 py-2 text-sm font-medium"
+          >
+            0.0 - 1.0
+          </button>
+        </div>
       </div>
 
-      {/* RGB Channels */}
-      {channels.map((ch, i) => (
-        <div key={ch}>
-          <label htmlFor={`channel-${ch}`} className="text-sm font-medium mb-1 flex justify-between">
-            <span style={{ color: channelColors[i] }}>{ch}</span>
-            <span className="font-mono text-slate-300">{displayValue(rgb[i])}</span>
-          </label>
+      <div className="metric-card p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="section-label">通道控制</p>
+          <span className="text-xs text-slate-500">滑块与数值同步</span>
+        </div>
+
+        {channels.map((ch, i) => (
+          <div
+            key={ch}
+            className={`grid grid-cols-[28px_minmax(0,1fr)_68px] items-center gap-3 py-2 ${
+              i < channels.length - 1 ? "border-b border-slate-800/80" : ""
+            }`}
+          >
+            <label htmlFor={`channel-${ch}`} className="text-sm font-semibold" style={{ color: channelColors[i] }}>
+              {ch}
+            </label>
+            <input
+              type="range"
+              title={`${ch} 通道滑块`}
+              min={0}
+              max={inputMode === "255" ? 255 : 1}
+              step={inputMode === "255" ? 1 : 0.001}
+              value={inputMode === "255" ? Math.round(rgb[i] * 255) : rgb[i]}
+              onChange={(e) => handleChannelChange(i, parseFloat(e.target.value))}
+              className="app-range h-2 w-full cursor-pointer rounded-full appearance-none"
+              style={{
+                background: `linear-gradient(90deg, rgba(15, 23, 42, 0.96), ${channelColors[i]})`,
+              }}
+            />
+            <div className="flex flex-col items-end gap-1">
+              <span className="font-mono text-xs text-slate-300">
+                {displayValue(rgb[i])}
+              </span>
+              <input
+                id={`channel-${ch}`}
+                type="number"
+                title={`${ch} 通道值`}
+                min={0}
+                max={inputMode === "255" ? 255 : 1}
+                step={inputMode === "255" ? 1 : 0.0001}
+                value={inputMode === "255" ? Math.round(rgb[i] * 255) : parseFloat(rgb[i].toFixed(4))}
+                onChange={(e) => handleChannelChange(i, parseFloat(e.target.value) || 0)}
+                className="app-field px-2 py-1.5 text-right text-xs font-mono"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_120px] xl:grid-cols-1">
+        <div className="metric-card p-4">
+          <label htmlFor="hex-input" className="mb-2 block text-sm text-slate-400">Hex (sRGB)</label>
           <input
-            type="range"
-            title={`${ch} 通道滑块`}
-            min={0}
-            max={inputMode === "255" ? 255 : 1}
-            step={inputMode === "255" ? 1 : 0.001}
-            value={inputMode === "255" ? Math.round(rgb[i] * 255) : rgb[i]}
-            onChange={(e) => handleChannelChange(i, parseFloat(e.target.value))}
-            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-            style={{
-              background: `linear-gradient(to right, #1e293b, ${channelColors[i]})`,
+            id="hex-input"
+            type="text"
+            title="sRGB Hex 颜色值"
+            placeholder="#000000"
+            value={displayedHexValue}
+            onFocus={() => {
+              setIsHexFocused(true);
+              setHexInput(normalizedHexValue);
             }}
-          />
-          <input
-            id={`channel-${ch}`}
-            type="number"
-            title={`${ch} 通道值`}
-            min={0}
-            max={inputMode === "255" ? 255 : 1}
-            step={inputMode === "255" ? 1 : 0.0001}
-            value={inputMode === "255" ? Math.round(rgb[i] * 255) : parseFloat(rgb[i].toFixed(4))}
-            onChange={(e) => handleChannelChange(i, parseFloat(e.target.value) || 0)}
-            className="w-full mt-1 bg-slate-700 text-slate-200 rounded px-2 py-1 text-sm font-mono border border-slate-600 focus:outline-none focus:border-blue-500"
+            onBlur={() => {
+              setIsHexFocused(false);
+              setHexInput(null);
+            }}
+            onChange={(e) => {
+              const nextValue = e.target.value.toUpperCase();
+              setHexInput(nextValue);
+              handleHexChange(nextValue);
+            }}
+            className="app-field px-3 py-2 text-sm font-mono"
+            maxLength={7}
           />
         </div>
-      ))}
 
-      {/* Hex Input */}
-      <div>
-        <label htmlFor="hex-input" className="text-sm text-slate-400 mb-1 block">Hex (sRGB)</label>
-        <input
-          id="hex-input"
-          type="text"
-          title="sRGB Hex 颜色值"
-          placeholder="#000000"
-          value={displayedHexValue}
-          onFocus={() => {
-            setIsHexFocused(true);
-            setHexInput(normalizedHexValue);
-          }}
-          onBlur={() => {
-            setIsHexFocused(false);
-            setHexInput(null);
-          }}
-          onChange={(e) => {
-            const nextValue = e.target.value.toUpperCase();
-            setHexInput(nextValue);
-            handleHexChange(nextValue);
-          }}
-          className="w-full bg-slate-700 text-slate-200 rounded px-3 py-2 text-sm font-mono border border-slate-600 focus:outline-none focus:border-blue-500"
-          maxLength={7}
-        />
-      </div>
-
-      {/* Color Preview */}
-      <div className="flex justify-center pt-2">
-        <ColorSwatch r={dr} g={dg} b={db} label="预览 (sRGB显示)" />
+        <div className="metric-card flex justify-center p-3">
+          <ColorSwatch r={dr} g={dg} b={db} label="预览" />
+        </div>
       </div>
     </div>
   );

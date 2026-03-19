@@ -5,10 +5,162 @@
   --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", "Segoe UI Mono", monospace;
 }
 
+html {
+  color-scheme: dark;
+}
+
+:root {
+  --app-bg: #08111f;
+  --app-surface: rgba(15, 23, 42, 0.72);
+  --app-surface-strong: rgba(15, 23, 42, 0.9);
+  --app-surface-soft: rgba(30, 41, 59, 0.58);
+  --app-border: rgba(148, 163, 184, 0.18);
+  --app-border-strong: rgba(148, 163, 184, 0.28);
+  --app-text: #e2e8f0;
+  --app-muted: #94a3b8;
+  --app-accent: #38bdf8;
+  --app-accent-soft: rgba(56, 189, 248, 0.14);
+  --app-shadow: 0 20px 60px rgba(2, 8, 23, 0.45);
+}
+
 body {
-  background: #0f172a;
-  color: #e2e8f0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 28rem),
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.1), transparent 24rem),
+    linear-gradient(180deg, #08111f 0%, #0f172a 45%, #111827 100%);
+  color: var(--app-text);
   font-family: system-ui, sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 80%);
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.28);
+}
+
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.app-shell::after {
+  content: "";
+  position: absolute;
+  top: 6rem;
+  right: max(1.5rem, calc((100vw - 1440px) / 2));
+  z-index: -1;
+  width: min(34vw, 30rem);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle, rgba(56, 189, 248, 0.18), transparent 58%),
+    radial-gradient(circle at 32% 34%, rgba(34, 197, 94, 0.14), transparent 34%);
+  filter: blur(18px);
+  opacity: 0.9;
+}
+
+.app-panel {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.78));
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.app-panel-soft {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.38), rgba(15, 23, 42, 0.46));
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  backdrop-filter: blur(12px);
+}
+
+.app-kicker {
+  color: #7dd3fc;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.app-field,
+.app-select {
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(30, 41, 59, 0.76);
+  color: var(--app-text);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.app-field:hover,
+.app-select:hover {
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+.app-field:focus,
+.app-select:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.85);
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
+  background: rgba(30, 41, 59, 0.92);
+}
+
+.app-toggle {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(30, 41, 59, 0.6);
+  color: var(--app-muted);
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.app-toggle:hover {
+  border-color: rgba(125, 211, 252, 0.26);
+  color: #cbd5e1;
+}
+
+.app-toggle[data-active="true"] {
+  border-color: rgba(56, 189, 248, 0.4);
+  background:
+    linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(59, 130, 246, 0.84));
+  color: #eff6ff;
+  box-shadow: 0 10px 28px rgba(14, 165, 233, 0.18);
+}
+
+.app-range {
+  background: rgba(15, 23, 42, 0.86);
+}
+
+.metric-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.34), rgba(15, 23, 42, 0.62));
+}
+
+.section-label {
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Custom range slider styling */

@@ -45,55 +45,81 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-900 text-slate-100">
-      <header className="bg-slate-800/80 backdrop-blur border-b border-slate-700 px-6 py-4">
-        <h1 className="text-2xl font-bold text-center">色彩空间转换程序</h1>
-        <p className="text-sm text-slate-400 text-center mt-1">
-          RGB ↔ CIE 1931 XYZ 双向转换 · 支持多种色彩空间与白点
-        </p>
-      </header>
+    <main className="app-shell min-h-screen px-4 pb-6 pt-4 text-slate-100 sm:px-5 lg:px-6">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-4">
+        <header className="app-panel rounded-[24px] px-5 py-4 sm:px-6">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0">
+              <p className="app-kicker text-[11px] font-semibold">Color Workflow</p>
+              <div className="mt-2 flex flex-col gap-2 xl:flex-row xl:items-end xl:gap-4">
+                <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                  色彩空间转换程序
+                </h1>
+                <p className="max-w-3xl text-sm leading-6 text-slate-400">
+                  RGB ↔ XYZ 双向换算、色度图联动、色域对比与矩阵说明。
+                </p>
+              </div>
+            </div>
 
-      <div className="max-w-[1440px] mx-auto p-4 grid grid-cols-1 lg:grid-cols-[320px_1fr_340px] gap-4">
-        <div className="overflow-y-auto max-h-[calc(100vh-120px)]">
-          <InputPanel
-            rgb={rgb}
-            srcSpace={srcSpace}
-            whitePoint={whitePoint}
-            inputMode={inputMode}
-            onRGBChange={setRgb}
-            onSrcSpaceChange={handleSrcSpaceChange}
-            onWhitePointChange={setWhitePoint}
-            onInputModeChange={setInputMode}
-          />
-        </div>
+            <div className="grid gap-2 sm:grid-cols-3 xl:min-w-[520px]">
+              <div className="app-panel-soft rounded-2xl px-3 py-2.5">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-sky-300/80">输入空间</p>
+                <p className="mt-1 text-sm font-semibold text-white">{COLOR_SPACES[srcSpace]?.name}</p>
+              </div>
+              <div className="app-panel-soft rounded-2xl px-3 py-2.5">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-300/80">参考白点</p>
+                <p className="mt-1 text-sm font-semibold text-white">{whitePoint}</p>
+              </div>
+              <div className="app-panel-soft rounded-2xl px-3 py-2.5">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-amber-300/80">输出空间</p>
+                <p className="mt-1 text-sm font-semibold text-white">{COLOR_SPACES[destSpace]?.name}</p>
+              </div>
+            </div>
+          </div>
+        </header>
 
-        <div className="flex flex-col gap-4">
-          <CIEDiagram
-            currentXyz={xyz}
-            srcSpace={srcSpace}
-            selectedGamuts={selectedGamuts}
-            whitePoint={whitePoint}
-            onChromaticityClick={handleChromaticityClick}
-          />
-          <GamutComparison
-            selectedGamuts={selectedGamuts}
-            onToggleGamut={handleToggleGamut}
-          />
-        </div>
+        <section className="grid grid-cols-1 gap-4 xl:grid-cols-[320px_minmax(0,1fr)_340px]">
+          <div className="xl:sticky xl:top-4 xl:self-start">
+            <InputPanel
+              rgb={rgb}
+              srcSpace={srcSpace}
+              whitePoint={whitePoint}
+              inputMode={inputMode}
+              onRGBChange={setRgb}
+              onSrcSpaceChange={handleSrcSpaceChange}
+              onWhitePointChange={setWhitePoint}
+              onInputModeChange={setInputMode}
+            />
+          </div>
 
-        <div className="overflow-y-auto max-h-[calc(100vh-120px)] flex flex-col gap-4">
-          <OutputPanel
-            xyz={xyz}
-            srcWhitePoint={whitePoint}
-            destSpace={destSpace}
-            onDestSpaceChange={setDestSpace}
-          />
-          <MatrixDisplay
-            srcSpace={srcSpace}
-            whitePoint={whitePoint}
-            destSpace={destSpace}
-          />
-        </div>
+          <div className="flex min-w-0 flex-col gap-4">
+            <CIEDiagram
+              currentXyz={xyz}
+              srcSpace={srcSpace}
+              selectedGamuts={selectedGamuts}
+              whitePoint={whitePoint}
+              onChromaticityClick={handleChromaticityClick}
+            />
+            <GamutComparison
+              selectedGamuts={selectedGamuts}
+              onToggleGamut={handleToggleGamut}
+            />
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-4 xl:self-start">
+            <OutputPanel
+              xyz={xyz}
+              srcWhitePoint={whitePoint}
+              destSpace={destSpace}
+              onDestSpaceChange={setDestSpace}
+            />
+            <MatrixDisplay
+              srcSpace={srcSpace}
+              whitePoint={whitePoint}
+              destSpace={destSpace}
+            />
+          </div>
+        </section>
       </div>
     </main>
   );

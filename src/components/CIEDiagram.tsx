@@ -105,6 +105,7 @@ export default function CIEDiagram({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bgCacheRef = useRef<HTMLCanvasElement | null>(null);
   const isDraggingRef = useRef(false);
+  const [currentX, currentY] = xyzToXyy(currentXyz[0], currentXyz[1], currentXyz[2]);
 
   const drawOverlays = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -357,30 +358,53 @@ export default function CIEDiagram({
   );
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <h2 className="text-lg font-semibold text-slate-200">CIE 1931 色度图</h2>
-      <canvas
-        ref={canvasRef}
-        width={CANVAS_SIZE}
-        height={CANVAS_SIZE}
-        style={{ width: CANVAS_SIZE, height: CANVAS_SIZE }}
-        className="rounded-xl cursor-crosshair max-w-full"
-        onMouseDown={(e) => {
-          isDraggingRef.current = true;
-          handlePointerEvent(e);
-        }}
-        onMouseMove={(e) => {
-          if (isDraggingRef.current) {
+    <div className="app-panel flex flex-col gap-4 rounded-[24px] p-4 sm:p-5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="app-kicker text-[11px] font-semibold">Visualization</p>
+          <h2 className="mt-1 text-lg font-semibold text-white">CIE 1931 色度图</h2>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-3">
+          <div className="app-panel-soft rounded-2xl px-3 py-2">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Current x</p>
+            <p className="mt-1 font-mono text-sm text-slate-100">{currentX.toFixed(4)}</p>
+          </div>
+          <div className="app-panel-soft rounded-2xl px-3 py-2">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Current y</p>
+            <p className="mt-1 font-mono text-sm text-slate-100">{currentY.toFixed(4)}</p>
+          </div>
+          <div className="app-panel-soft rounded-2xl px-3 py-2">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">White Point</p>
+            <p className="mt-1 text-sm font-semibold text-slate-100">{whitePoint}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="metric-card flex justify-center overflow-hidden rounded-[20px] p-2 sm:p-3">
+        <canvas
+          ref={canvasRef}
+          width={CANVAS_SIZE}
+          height={CANVAS_SIZE}
+          style={{ width: CANVAS_SIZE, height: CANVAS_SIZE }}
+          className="max-w-full cursor-crosshair rounded-[20px]"
+          onMouseDown={(e) => {
+            isDraggingRef.current = true;
             handlePointerEvent(e);
-          }
-        }}
-        onMouseUp={() => {
-          isDraggingRef.current = false;
-        }}
-        onMouseLeave={() => {
-          isDraggingRef.current = false;
-        }}
-      />
+          }}
+          onMouseMove={(e) => {
+            if (isDraggingRef.current) {
+              handlePointerEvent(e);
+            }
+          }}
+          onMouseUp={() => {
+            isDraggingRef.current = false;
+          }}
+          onMouseLeave={() => {
+            isDraggingRef.current = false;
+          }}
+        />
+      </div>
     </div>
   );
 }

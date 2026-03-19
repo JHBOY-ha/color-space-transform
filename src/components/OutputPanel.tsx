@@ -14,7 +14,7 @@ interface OutputPanelProps {
 
 function ValueRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-center py-1">
+    <div className="flex items-center justify-between gap-4 py-1.5">
       <span className="text-sm text-slate-400">{label}</span>
       <span className="text-sm font-mono text-slate-200">{value}</span>
     </div>
@@ -39,43 +39,49 @@ export default function OutputPanel({
   const [dr, dg, db] = toDisplayRGB(rgbResult.r, rgbResult.g, rgbResult.b, destSpace);
 
   return (
-    <div className="bg-slate-800 rounded-xl p-5 flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-slate-200">输出</h2>
-
-      {/* XYZ Values */}
-      <div className="bg-slate-750 rounded-lg p-3 bg-slate-900/50">
-        <h3 className="text-sm font-semibold text-blue-400 mb-2">CIE XYZ 三刺激值</h3>
-        <ValueRow label="X" value={X.toFixed(6)} />
-        <ValueRow label="Y" value={Y.toFixed(6)} />
-        <ValueRow label="Z" value={Z.toFixed(6)} />
+    <div className="app-panel flex flex-col gap-4 rounded-[24px] p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="app-kicker text-[11px] font-semibold">Output</p>
+          <h2 className="mt-1 text-lg font-semibold text-white">计算结果</h2>
+        </div>
+        <div className="rounded-full border border-slate-700/70 bg-slate-950/35 px-3 py-1 text-xs font-medium text-slate-300">
+          {destSpaceDef?.name || destSpace}
+        </div>
       </div>
 
-      {/* xyY Values */}
-      <div className="bg-slate-900/50 rounded-lg p-3">
-        <h3 className="text-sm font-semibold text-green-400 mb-2">xyY 色度坐标</h3>
-        <ValueRow label="x" value={x.toFixed(6)} />
-        <ValueRow label="y" value={y.toFixed(6)} />
-        <ValueRow label="Y" value={Ylum.toFixed(6)} />
+      <div className="grid gap-3 lg:grid-cols-3">
+        <div className="metric-card p-4">
+          <h3 className="mb-3 text-sm font-semibold text-sky-300">CIE XYZ 三刺激值</h3>
+          <ValueRow label="X" value={X.toFixed(6)} />
+          <ValueRow label="Y" value={Y.toFixed(6)} />
+          <ValueRow label="Z" value={Z.toFixed(6)} />
+        </div>
+
+        <div className="metric-card p-4">
+          <h3 className="mb-3 text-sm font-semibold text-emerald-300">xyY 色度坐标</h3>
+          <ValueRow label="x" value={x.toFixed(6)} />
+          <ValueRow label="y" value={y.toFixed(6)} />
+          <ValueRow label="Y" value={Ylum.toFixed(6)} />
+        </div>
+
+        <div className="metric-card p-4">
+          <h3 className="mb-3 text-sm font-semibold text-fuchsia-300">CIELAB</h3>
+          <ValueRow label="L*" value={L.toFixed(4)} />
+          <ValueRow label="a*" value={a.toFixed(4)} />
+          <ValueRow label="b*" value={b.toFixed(4)} />
+        </div>
       </div>
 
-      {/* CIELAB Values */}
-      <div className="bg-slate-900/50 rounded-lg p-3">
-        <h3 className="text-sm font-semibold text-purple-400 mb-2">CIELAB</h3>
-        <ValueRow label="L*" value={L.toFixed(4)} />
-        <ValueRow label="a*" value={a.toFixed(4)} />
-        <ValueRow label="b*" value={b.toFixed(4)} />
-      </div>
-
-      {/* Reverse Conversion */}
-      <div className="bg-slate-900/50 rounded-lg p-3">
-        <h3 className="text-sm font-semibold text-orange-400 mb-2">逆向转换 (XYZ → RGB)</h3>
-        <label htmlFor="dest-space" className="text-sm text-slate-400 mb-1 block">目标色彩空间</label>
+      <div className="metric-card p-4">
+        <h3 className="mb-3 text-sm font-semibold text-amber-300">逆向转换 (XYZ → RGB)</h3>
+        <label htmlFor="dest-space" className="mb-2 block text-sm text-slate-400">目标色彩空间</label>
         <select
           id="dest-space"
           title="目标色彩空间"
           value={destSpace}
           onChange={(e) => onDestSpaceChange(e.target.value)}
-          className="w-full bg-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm border border-slate-600 focus:outline-none focus:border-blue-500 mb-3"
+          className="app-select mb-4 px-3 py-2 text-sm"
         >
           {Object.entries(COLOR_SPACES).map(([key, cs]) => (
             <option key={key} value={key}>
@@ -108,21 +114,19 @@ export default function OutputPanel({
           value={Math.round(rgbResult.b * 255).toString()}
         />
         {!rgbResult.inGamut && (
-          <div className="mt-2 px-3 py-1.5 bg-red-900/30 border border-red-700 rounded text-xs text-red-300">
-            ⚠ 该颜色超出 {destSpaceDef?.name || destSpace} 色域范围，已裁剪
+          <div className="mt-3 rounded-2xl border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs leading-5 text-red-200">
+            该颜色超出 {destSpaceDef?.name || destSpace} 色域范围，结果已裁剪到可显示范围内。
           </div>
         )}
-      </div>
-
-      {/* Color Preview */}
-      <div className="flex justify-center pt-2">
-        <ColorSwatch
-          r={dr}
-          g={dg}
-          b={db}
-          label="输出预览 (sRGB显示)"
-          outOfGamut={!rgbResult.inGamut}
-        />
+        <div className="mt-4 flex justify-center">
+          <ColorSwatch
+            r={dr}
+            g={dg}
+            b={db}
+            label="输出预览"
+            outOfGamut={!rgbResult.inGamut}
+          />
+        </div>
       </div>
     </div>
   );
