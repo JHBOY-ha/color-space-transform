@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { COLOR_SPACES, WHITE_POINTS } from "@/lib/colorData";
 import { toDisplayRGB, rgbToXyz, xyzToRgb } from "@/lib/colorConvert";
 import ColorSwatch from "./ColorSwatch";
@@ -70,6 +71,10 @@ export default function InputPanel({
           .padStart(2, "0")
       )
       .join("");
+  const normalizedHexValue = hexValue.toUpperCase();
+  const [hexInput, setHexInput] = useState<string | null>(null);
+  const [isHexFocused, setIsHexFocused] = useState(false);
+  const displayedHexValue = isHexFocused ? (hexInput ?? normalizedHexValue) : normalizedHexValue;
 
   return (
     <div className="bg-slate-800 rounded-xl p-5 flex flex-col gap-4">
@@ -179,8 +184,20 @@ export default function InputPanel({
           type="text"
           title="sRGB Hex 颜色值"
           placeholder="#000000"
-          value={hexValue.toUpperCase()}
-          onChange={(e) => handleHexChange(e.target.value)}
+          value={displayedHexValue}
+          onFocus={() => {
+            setIsHexFocused(true);
+            setHexInput(normalizedHexValue);
+          }}
+          onBlur={() => {
+            setIsHexFocused(false);
+            setHexInput(null);
+          }}
+          onChange={(e) => {
+            const nextValue = e.target.value.toUpperCase();
+            setHexInput(nextValue);
+            handleHexChange(nextValue);
+          }}
           className="w-full bg-slate-700 text-slate-200 rounded px-3 py-2 text-sm font-mono border border-slate-600 focus:outline-none focus:border-blue-500"
           maxLength={7}
         />
