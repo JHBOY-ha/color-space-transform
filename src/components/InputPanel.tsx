@@ -77,7 +77,7 @@ export default function InputPanel({
   const displayedHexValue = isHexFocused ? (hexInput ?? normalizedHexValue) : normalizedHexValue;
 
   return (
-    <div className="app-panel flex flex-col gap-4 rounded-[24px] p-4 sm:p-5">
+    <div className="app-panel flex flex-col gap-3 rounded-[24px] p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="app-kicker text-[11px] font-semibold">Input</p>
@@ -88,9 +88,9 @@ export default function InputPanel({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-        <div className="metric-card p-4">
-          <label htmlFor="src-space" className="mb-2 block text-sm text-slate-400">色彩空间</label>
+      <div className="grid gap-2">
+        <div className="rounded-2xl border border-slate-800/80 bg-slate-950/20 px-3 py-3">
+          <label htmlFor="src-space" className="mb-1.5 block text-sm text-slate-400">色彩空间</label>
           <select
             id="src-space"
             title="源色彩空间"
@@ -106,8 +106,8 @@ export default function InputPanel({
           </select>
         </div>
 
-        <div className="metric-card p-4">
-          <label htmlFor="white-point" className="mb-2 block text-sm text-slate-400">参考白点</label>
+        <div className="rounded-2xl border border-slate-800/80 bg-slate-950/20 px-3 py-3">
+          <label htmlFor="white-point" className="mb-1.5 block text-sm text-slate-400">参考白点</label>
           <select
             id="white-point"
             title="参考白点"
@@ -124,7 +124,7 @@ export default function InputPanel({
         </div>
       </div>
 
-      <div className="metric-card p-2">
+      <div className="rounded-2xl border border-slate-800/80 bg-slate-950/20 p-1.5">
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -145,8 +145,8 @@ export default function InputPanel({
         </div>
       </div>
 
-      <div className="metric-card p-4">
-        <div className="mb-3 flex items-center justify-between">
+      <div className="rounded-2xl border border-slate-800/80 bg-slate-950/20 px-3 py-3">
+        <div className="mb-2 flex items-center justify-between">
           <p className="section-label">通道控制</p>
           <span className="text-xs text-slate-500">滑块与数值同步</span>
         </div>
@@ -154,7 +154,7 @@ export default function InputPanel({
         {channels.map((ch, i) => (
           <div
             key={ch}
-            className={`grid grid-cols-[28px_minmax(0,1fr)_68px] items-center gap-3 py-2 ${
+            className={`grid grid-cols-[20px_minmax(0,1fr)_72px] items-center gap-3 py-2 ${
               i < channels.length - 1 ? "border-b border-slate-800/80" : ""
             }`}
           >
@@ -174,29 +174,25 @@ export default function InputPanel({
                 background: `linear-gradient(90deg, rgba(15, 23, 42, 0.96), ${channelColors[i]})`,
               }}
             />
-            <div className="flex flex-col items-end gap-1">
-              <span className="font-mono text-xs text-slate-300">
-                {displayValue(rgb[i])}
-              </span>
-              <input
-                id={`channel-${ch}`}
-                type="number"
-                title={`${ch} 通道值`}
-                min={0}
-                max={inputMode === "255" ? 255 : 1}
-                step={inputMode === "255" ? 1 : 0.0001}
-                value={inputMode === "255" ? Math.round(rgb[i] * 255) : parseFloat(rgb[i].toFixed(4))}
-                onChange={(e) => handleChannelChange(i, parseFloat(e.target.value) || 0)}
-                className="app-field px-2 py-1.5 text-right text-xs font-mono"
-              />
-            </div>
+            <input
+              id={`channel-${ch}`}
+              type="number"
+              title={`${ch} 通道值`}
+              min={0}
+              max={inputMode === "255" ? 255 : 1}
+              step={inputMode === "255" ? 1 : 0.0001}
+              value={inputMode === "255" ? Math.round(rgb[i] * 255) : parseFloat(rgb[i].toFixed(4))}
+              onChange={(e) => handleChannelChange(i, parseFloat(e.target.value) || 0)}
+              className="app-field px-2 py-1.5 text-right text-sm font-mono"
+            />
           </div>
         ))}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_120px] xl:grid-cols-1">
-        <div className="metric-card p-4">
-          <label htmlFor="hex-input" className="mb-2 block text-sm text-slate-400">Hex (sRGB)</label>
+      <div className="grid grid-cols-[minmax(0,1fr)_110px] items-stretch gap-3">
+        <div className="rounded-2xl border border-slate-800/80 bg-slate-950/20 px-3 py-3">
+          <label htmlFor="hex-input" className="mb-1.5 block text-sm text-slate-400">Hex (sRGB)</label>
+          <div className="mb-1 text-xs font-mono text-slate-500">{displayValue(rgb[0])} / {displayValue(rgb[1])} / {displayValue(rgb[2])}</div>
           <input
             id="hex-input"
             type="text"
@@ -221,7 +217,7 @@ export default function InputPanel({
           />
         </div>
 
-        <div className="metric-card flex justify-center p-3">
+        <div className="rounded-2xl border border-slate-800/80 bg-slate-950/20 p-3">
           <ColorSwatch r={dr} g={dg} b={db} label="预览" />
         </div>
       </div>

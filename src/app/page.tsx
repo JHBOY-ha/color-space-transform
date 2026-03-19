@@ -78,7 +78,7 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="grid grid-cols-1 gap-4 xl:grid-cols-[320px_minmax(0,1fr)_340px]">
+        <section className="grid grid-cols-1 gap-4 xl:grid-cols-[300px_360px_minmax(0,1fr)]">
           <div className="xl:sticky xl:top-4 xl:self-start">
             <InputPanel
               rgb={rgb}
@@ -93,20 +93,6 @@ export default function Home() {
           </div>
 
           <div className="flex min-w-0 flex-col gap-4">
-            <CIEDiagram
-              currentXyz={xyz}
-              srcSpace={srcSpace}
-              selectedGamuts={selectedGamuts}
-              whitePoint={whitePoint}
-              onChromaticityClick={handleChromaticityClick}
-            />
-            <GamutComparison
-              selectedGamuts={selectedGamuts}
-              onToggleGamut={handleToggleGamut}
-            />
-          </div>
-
-          <div className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-4 xl:self-start">
             <OutputPanel
               xyz={xyz}
               srcWhitePoint={whitePoint}
@@ -117,6 +103,20 @@ export default function Home() {
               srcSpace={srcSpace}
               whitePoint={whitePoint}
               destSpace={destSpace}
+            />
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-4 xl:self-start">
+            <CIEDiagram
+              currentXyz={xyz}
+              srcSpace={srcSpace}
+              selectedGamuts={selectedGamuts}
+              whitePoint={whitePoint}
+              onChromaticityClick={handleChromaticityClick}
+            />
+            <GamutComparison
+              selectedGamuts={selectedGamuts}
+              onToggleGamut={handleToggleGamut}
             />
           </div>
         </section>
