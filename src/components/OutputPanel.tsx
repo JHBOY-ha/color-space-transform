@@ -14,9 +14,9 @@ interface OutputPanelProps {
 
 function ValueRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-1.5">
-      <span className="text-sm text-slate-400">{label}</span>
-      <span className="text-sm font-mono text-slate-200">{value}</span>
+    <div className="flex min-w-0 items-center justify-between gap-2 py-1">
+      <span className="min-w-0 text-xs text-slate-400">{label}</span>
+      <span className="shrink-0 text-right text-xs font-mono text-slate-200">{value}</span>
     </div>
   );
 }
@@ -39,7 +39,7 @@ export default function OutputPanel({
   const [dr, dg, db] = toDisplayRGB(rgbResult.r, rgbResult.g, rgbResult.b, destSpace);
 
   return (
-    <div className="app-panel flex flex-col gap-4 rounded-[24px] p-4 sm:p-5">
+    <div className="app-panel flex flex-col gap-3 rounded-[24px] p-4 sm:p-5">
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="app-kicker text-[11px] font-semibold">Output</p>
@@ -50,38 +50,38 @@ export default function OutputPanel({
         </div>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-3">
-        <div className="metric-card p-4">
-          <h3 className="mb-3 text-sm font-semibold text-sky-300">CIE XYZ 三刺激值</h3>
+      <div className="grid grid-cols-3 gap-2">
+        <div className="metric-card min-w-0 p-3">
+          <h3 className="mb-2 text-xs font-semibold leading-5 text-sky-300">CIE XYZ</h3>
           <ValueRow label="X" value={X.toFixed(6)} />
           <ValueRow label="Y" value={Y.toFixed(6)} />
           <ValueRow label="Z" value={Z.toFixed(6)} />
         </div>
 
-        <div className="metric-card p-4">
-          <h3 className="mb-3 text-sm font-semibold text-emerald-300">xyY 色度坐标</h3>
+        <div className="metric-card min-w-0 p-3">
+          <h3 className="mb-2 text-xs font-semibold leading-5 text-emerald-300">xyY 色度</h3>
           <ValueRow label="x" value={x.toFixed(6)} />
           <ValueRow label="y" value={y.toFixed(6)} />
           <ValueRow label="Y" value={Ylum.toFixed(6)} />
         </div>
 
-        <div className="metric-card p-4">
-          <h3 className="mb-3 text-sm font-semibold text-fuchsia-300">CIELAB</h3>
+        <div className="metric-card min-w-0 p-3">
+          <h3 className="mb-2 text-xs font-semibold leading-5 text-fuchsia-300">CIELAB</h3>
           <ValueRow label="L*" value={L.toFixed(4)} />
           <ValueRow label="a*" value={a.toFixed(4)} />
           <ValueRow label="b*" value={b.toFixed(4)} />
         </div>
       </div>
 
-      <div className="metric-card p-4">
-        <h3 className="mb-3 text-sm font-semibold text-amber-300">逆向转换 (XYZ → RGB)</h3>
+      <div className="metric-card p-3">
+        <h3 className="mb-2 text-sm font-semibold text-amber-300">逆向转换 (XYZ → RGB)</h3>
         <label htmlFor="dest-space" className="mb-2 block text-sm text-slate-400">目标色彩空间</label>
         <select
           id="dest-space"
           title="目标色彩空间"
           value={destSpace}
           onChange={(e) => onDestSpaceChange(e.target.value)}
-          className="app-select mb-4 px-3 py-2 text-sm"
+          className="app-select mb-3 px-3 py-2 text-sm"
         >
           {Object.entries(COLOR_SPACES).map(([key, cs]) => (
             <option key={key} value={key}>
@@ -114,11 +114,11 @@ export default function OutputPanel({
           value={Math.round(rgbResult.b * 255).toString()}
         />
         {!rgbResult.inGamut && (
-          <div className="mt-3 rounded-2xl border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs leading-5 text-red-200">
+          <div className="mt-2 rounded-2xl border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs leading-5 text-red-200">
             该颜色超出 {destSpaceDef?.name || destSpace} 色域范围，结果已裁剪到可显示范围内。
           </div>
         )}
-        <div className="mt-4 flex justify-center">
+        <div className="mt-3 flex justify-center">
           <ColorSwatch
             r={dr}
             g={dg}
