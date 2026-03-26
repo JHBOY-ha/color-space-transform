@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { SPECTRAL_LOCUS, PLANCKIAN_LOCUS, COLOR_SPACES, WHITE_POINTS, GAMUT_COLORS } from "@/lib/colorData";
 import { xyzToRgb, xyzToXyy } from "@/lib/colorConvert";
 import type { Vec3 } from "@/lib/matrix";
@@ -22,6 +22,7 @@ const X_MIN = 0;
 const X_MAX = 0.8;
 const Y_MIN = 0;
 const Y_MAX = 0.9;
+const CCT_LABELS = [2000, 3000, 4000, 5000, 6500, 10000];
 
 function chromToCanvas(cx: number, cy: number): [number, number] {
   const px = MARGIN + ((cx - X_MIN) / (X_MAX - X_MIN)) * PLOT_SIZE;
@@ -95,6 +96,12 @@ function generateBackground(): HTMLCanvasElement {
 // Wavelength labels to show
 const WAVELENGTH_LABELS = [400, 450, 470, 480, 490, 500, 510, 520, 530, 540, 560, 580, 600, 620, 650, 700];
 
+function getDistanceSquared(ax: number, ay: number, bx: number, by: number): number {
+  const dx = ax - bx;
+  const dy = ay - by;
+  return dx * dx + dy * dy;
+}
+
 export default function CIEDiagram({
   currentXyz,
   srcSpace,
@@ -106,6 +113,12 @@ export default function CIEDiagram({
   const bgCacheRef = useRef<HTMLCanvasElement | null>(null);
   const isDraggingRef = useRef(false);
   const [currentX, currentY] = xyzToXyy(currentXyz[0], currentXyz[1], currentXyz[2]);
+  const [tooltip, setTooltip] = useState<{
+    x: number;
+    y: number;
+    title: string;
+    detail?: string;
+  } | null>(null);
 
   const drawOverlays = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -126,8 +139,8 @@ export default function CIEDiagram({
         ctx.stroke();
 
         // X axis label
-        ctx.fillStyle = "#64748b";
-        ctx.font = "10px sans-serif";
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "11px sans-serif";
         ctx.textAlign = "center";
         ctx.fillText(v.toFixed(1), px1, CANVAS_SIZE - 8);
       }
@@ -140,8 +153,8 @@ export default function CIEDiagram({
         ctx.stroke();
 
         // Y axis label
-        ctx.fillStyle = "#64748b";
-        ctx.font = "10px sans-serif";
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "11px sans-serif";
         ctx.textAlign = "right";
         ctx.fillText(v.toFixed(1), MARGIN - 5, py1 + 3);
       }
@@ -161,30 +174,13 @@ export default function CIEDiagram({
       ctx.lineTo(sx0, sy0);
       ctx.stroke();
 
-      // Draw wavelength labels
-      ctx.fillStyle = "#e2e8f0";
-      ctx.font = "9px sans-serif";
+      // Draw spectral reference dots
       for (const wl of WAVELENGTH_LABELS) {
         const entry = SPECTRAL_LOCUS.find(([w]) => w === wl);
         if (entry) {
           const [, cx, cy] = entry;
           const [px, py] = chromToCanvas(cx, cy);
-
-          // Offset label outside the curve
-          const centerX = 0.33;
-          const centerY = 0.33;
-          const dx = cx - centerX;
-          const dy = cy - centerY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const offsetX = (dx / dist) * 18;
-          const offsetY = (dy / dist) * 18;
-
-          ctx.fillStyle = "#e2e8f0";
-          ctx.textAlign = "center";
-          ctx.fillText(`${wl}`, px + offsetX, py - offsetY);
-
-          // Small dot on the curve
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = "rgba(248, 250, 252, 0.92)";
           ctx.beginPath();
           ctx.arc(px, py, 2, 0, Math.PI * 2);
           ctx.fill();
@@ -205,23 +201,21 @@ export default function CIEDiagram({
       }
       ctx.stroke();
       ctx.setLineDash([]);
-      // CCT labels on Planckian locus
-      const cctLabels = [2000, 3000, 4000, 5000, 6500, 10000];
-      ctx.fillStyle = "rgba(255, 200, 100, 0.7)";
-      ctx.font = "8px sans-serif";
-      for (const cct of cctLabels) {
+      for (const cct of CCT_LABELS) {
         const entry = PLANCKIAN_LOCUS.find(([t]) => t === cct);
         if (entry) {
           const [, pcx, pcy] = entry;
           const [ppx, ppy] = chromToCanvas(pcx, pcy);
-          ctx.textAlign = "left";
-          ctx.fillText(`${cct}K`, ppx + 4, ppy - 4);
+          ctx.fillStyle = "rgba(255, 220, 140, 0.92)";
+          ctx.beginPath();
+          ctx.arc(ppx, ppy, 2, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
 
       // Axis labels
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "12px sans-serif";
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = "13px sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("x", CANVAS_SIZE / 2, CANVAS_SIZE - 2);
       ctx.save();
@@ -263,13 +257,6 @@ export default function CIEDiagram({
           ctx.fill();
         }
 
-        // Label
-        ctx.fillStyle = color;
-        ctx.font = "10px sans-serif";
-        ctx.textAlign = "center";
-        const labelX = (rx + gx + bx) / 3;
-        const labelY = (ry + gy + by) / 3;
-        ctx.fillText(space.name, labelX, labelY);
       }
 
       // Draw white point
@@ -289,11 +276,6 @@ export default function CIEDiagram({
         ctx.beginPath();
         ctx.arc(wpx, wpy, 4, 0, Math.PI * 2);
         ctx.stroke();
-        // Label
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "10px sans-serif";
-        ctx.textAlign = "left";
-        ctx.fillText(whitePoint, wpx + 8, wpy - 4);
       }
 
       // Draw current color point
@@ -337,7 +319,75 @@ export default function CIEDiagram({
     drawOverlays(ctx);
   }, [drawOverlays]);
 
-  const handlePointerEvent = useCallback(
+  const resolveTooltip = useCallback(
+    (px: number, py: number, cssX: number, cssY: number) => {
+      const spectralHitRadius = 10 * 10;
+      for (const wl of WAVELENGTH_LABELS) {
+        const entry = SPECTRAL_LOCUS.find(([w]) => w === wl);
+        if (!entry) continue;
+        const [, cx, cy] = entry;
+        const [tx, ty] = chromToCanvas(cx, cy);
+        if (getDistanceSquared(px, py, tx, ty) <= spectralHitRadius) {
+          setTooltip({
+            x: cssX,
+            y: cssY,
+            title: `${wl} nm`,
+            detail: `光谱轨迹 x=${cx.toFixed(4)} y=${cy.toFixed(4)}`,
+          });
+          return;
+        }
+      }
+
+      const cctHitRadius = 10 * 10;
+      for (const cct of CCT_LABELS) {
+        const entry = PLANCKIAN_LOCUS.find(([t]) => t === cct);
+        if (!entry) continue;
+        const [, cx, cy] = entry;
+        const [tx, ty] = chromToCanvas(cx, cy);
+        if (getDistanceSquared(px, py, tx, ty) <= cctHitRadius) {
+          setTooltip({
+            x: cssX,
+            y: cssY,
+            title: `${cct} K`,
+            detail: `黑体轨迹 x=${cx.toFixed(4)} y=${cy.toFixed(4)}`,
+          });
+          return;
+        }
+      }
+
+      const wp = WHITE_POINTS[whitePoint];
+      if (wp) {
+        const [tx, ty] = chromToCanvas(wp.x, wp.y);
+        if (getDistanceSquared(px, py, tx, ty) <= 11 * 11) {
+          setTooltip({
+            x: cssX,
+            y: cssY,
+            title: whitePoint,
+            detail: `参考白点 x=${wp.x.toFixed(4)} y=${wp.y.toFixed(4)}`,
+          });
+          return;
+        }
+      }
+
+      if (currentY > 0.001) {
+        const [tx, ty] = chromToCanvas(currentX, currentY);
+        if (getDistanceSquared(px, py, tx, ty) <= 11 * 11) {
+          setTooltip({
+            x: cssX,
+            y: cssY,
+            title: "当前颜色",
+            detail: `x=${currentX.toFixed(4)} y=${currentY.toFixed(4)}`,
+          });
+          return;
+        }
+      }
+
+      setTooltip(null);
+    },
+    [currentX, currentY, whitePoint]
+  );
+
+  const handlePlacementEvent = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (!onChromaticityClick) return;
       const canvas = canvasRef.current;
@@ -355,6 +405,20 @@ export default function CIEDiagram({
       }
     },
     [onChromaticityClick]
+  );
+
+  const handleHoverMove = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = CANVAS_SIZE / rect.width;
+      const scaleY = CANVAS_SIZE / rect.height;
+      const px = (e.clientX - rect.left) * scaleX;
+      const py = (e.clientY - rect.top) * scaleY;
+      resolveTooltip(px, py, e.clientX - rect.left, e.clientY - rect.top);
+    },
+    [resolveTooltip]
   );
 
   return (
@@ -381,7 +445,7 @@ export default function CIEDiagram({
         </div>
       </div>
 
-      <div className="metric-card flex justify-center overflow-hidden rounded-[20px] p-2 sm:p-3">
+      <div className="metric-card relative flex justify-center overflow-hidden rounded-[20px] p-2 sm:p-3">
         <canvas
           ref={canvasRef}
           width={CANVAS_SIZE}
@@ -390,11 +454,12 @@ export default function CIEDiagram({
           className="max-w-full cursor-crosshair rounded-[20px]"
           onMouseDown={(e) => {
             isDraggingRef.current = true;
-            handlePointerEvent(e);
+            handlePlacementEvent(e);
           }}
           onMouseMove={(e) => {
+            handleHoverMove(e);
             if (isDraggingRef.current) {
-              handlePointerEvent(e);
+              handlePlacementEvent(e);
             }
           }}
           onMouseUp={() => {
@@ -402,8 +467,21 @@ export default function CIEDiagram({
           }}
           onMouseLeave={() => {
             isDraggingRef.current = false;
+            setTooltip(null);
           }}
         />
+        {tooltip && (
+          <div
+            className="pointer-events-none absolute z-10 max-w-[220px] rounded-xl border border-slate-600/70 bg-slate-950/92 px-3 py-2 text-xs shadow-xl"
+            style={{
+              left: Math.min(tooltip.x + 14, CANVAS_SIZE - 170),
+              top: Math.max(tooltip.y - 12, 10),
+            }}
+          >
+            <p className="font-semibold text-slate-100">{tooltip.title}</p>
+            {tooltip.detail && <p className="mt-1 text-slate-400">{tooltip.detail}</p>}
+          </div>
+        )}
       </div>
     </div>
   );

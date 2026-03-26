@@ -23,24 +23,30 @@ export default function GamutComparison({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-2">
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {Object.entries(COLOR_SPACES).map(([key, cs]) => (
-          <label
+          <button
             key={key}
-            className="metric-card flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2.5 text-sm text-slate-200 transition hover:border-sky-400/25 hover:bg-slate-900/70"
+            type="button"
+            aria-pressed={selectedGamuts.includes(key)}
+            onClick={() => onToggleGamut(key)}
+            className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2 text-sm transition ${
+              selectedGamuts.includes(key)
+                ? "border-sky-400/35 bg-sky-400/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+                : "border-slate-800/80 bg-slate-950/22 text-slate-300 hover:border-sky-400/25 hover:bg-slate-900/70"
+            }`}
           >
-            <input
-              type="checkbox"
-              checked={selectedGamuts.includes(key)}
-              onChange={() => onToggleGamut(key)}
-              className="h-4 w-4 rounded border-slate-600 bg-slate-900/80"
-            />
             <span
-              className="h-3 w-3 flex-shrink-0 rounded-full"
+              className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
               style={{ backgroundColor: GAMUT_COLORS[key] || "#888" }}
             />
-            <span className="truncate">{cs.name}</span>
-          </label>
+            <span className="truncate text-left">{cs.name}</span>
+            <span
+              className={`ml-auto h-2 w-2 rounded-full ${
+                selectedGamuts.includes(key) ? "bg-sky-300" : "bg-slate-600"
+              }`}
+            />
+          </button>
         ))}
       </div>
     </div>
